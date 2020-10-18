@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %} 
+  Профиль {% if post.author.get_full_name %}
+            {{ post.author.get_full_name }}
+          {% else %}
+            {{post.author.username}}
+          {% endif %}
+{% endblock %}
+{% block header %} 
+  Профиль {% if post.author.get_full_name %}
+            {{ post.author.get_full_name }}
+          {% else %} 
+            {{post.author.username}}
+          {% endif %}
+{% endblock %}
+{% block content %}
+
+<main role="main" class="container">
+  <div class="row">
+    <div class="col-md-9">
+      <!-- Пост -->  
+      {% include "post_item.html" with post=post %} 
+      {% include "comments.html" with form=comment_form comments=post.comments.all %}
+    </div>
+  </div>
+</main>
+{% endblock %}
