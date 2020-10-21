@@ -1,6 +1,5 @@
-from django.db import models
 from django.contrib.auth import get_user_model
-
+from django.db import models
 
 User = get_user_model()
 
@@ -24,7 +23,7 @@ class Post(models.Model):
         verbose_name = "Запись"
         verbose_name_plural = "Записи"
 
-    text = models.TextField(verbose_name="Текст")
+    text = models.TextField(verbose_name="Текст",)
     pub_date = models.DateTimeField(
         auto_now_add=True,
         verbose_name="Дата публикации",
@@ -47,6 +46,7 @@ class Post(models.Model):
         upload_to="posts/",
         blank=True,
         null=True,
+        verbose_name="Изображение"
     )
 
     def __str__(self):

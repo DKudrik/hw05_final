@@ -1,9 +1,11 @@
 from django import forms
-
-from django.db import models
 from django.forms import ModelForm
-from .models import Comment, Post
 from django.utils.translation import gettext_lazy as _
+from django.db import models
+from django.contrib.auth import get_user_model
+
+
+from .models import Comment, Post
 
 
 class PostForm(ModelForm):

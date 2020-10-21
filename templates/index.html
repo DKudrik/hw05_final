@@ -1,14 +1,23 @@
 {% extends "base.html" %}
 {% block title %}Последние обновления на сайте{% endblock %}
 {% block content %}
-
+<style>
+  hr {
+   background-color: grey; /* Цвет линии */
+   color: grey; /* Цвет линии для IE6-7 */
+   height: 2px; /* Толщина линии */
+  }
+ </style>
+ 
   <div class="container">
     {% include "menu.html" with index=True %}
     <h1> Последние обновления на сайте</h1>
       <!-- Вывод ленты записей -->
       {% for post in page %}
         <!-- Вот он, новый include! -->
-        {% include "post_item.html" with post=post %}
+        {% include "post_item.html" with post=post show_group=True %}
+        {% include "comments.html" with form=comment_form comments=post.comments.all %}
+        <hr>
       {% endfor %}
       
       {% if page.has_other_pages %}

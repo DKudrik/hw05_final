@@ -1,17 +1,9 @@
 {% extends "base.html" %}
 {% block title %} 
-  Профиль {% if post.author.get_full_name %}
-            {{ post.author.get_full_name }}
-          {% else %}
-            {{post.author.username}}
-          {% endif %}
+  Профиль {{ author_name }}
 {% endblock %}
 {% block header %} 
-  Профиль {% if post.author.get_full_name %}
-            {{ post.author.get_full_name }}
-          {% else %} 
-            {{post.author.username}}
-          {% endif %}
+  Профиль {{ author_name }}
 {% endblock %}
 {% block content %}
 

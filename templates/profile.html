@@ -3,6 +3,14 @@
 {% block header %} Профиль  {{author}} {% endblock %}
 {% block content %}
 
+<style>
+  hr {
+   background-color: grey; /* Цвет линии */
+   color: grey; /* Цвет линии для IE6-7 */
+   height: 2px; /* Толщина линии */
+  }
+ </style>
+
 <main role="main" class="container">
   <div class="row">
     <div class="col-md-3 mb-3 mt-1">
@@ -25,16 +33,18 @@
           <li class="list-group-item">
           	<div class="h6 text-muted">
               <p>Количество постов: {{ author.posts.count }}</p>
-              {% if following %}
-                <a class="btn btn-lg btn-light" 
-                  href="{% url 'profile_unfollow' author.username %}" role="button"> 
-                  Отписаться 
-                </a> 
-              {% else %}
-                <a class="btn btn-lg btn-primary" 
-                  href="{% url 'profile_follow' author.username %}" role="button">
-                Подписаться 
-                </a>
+              {% if request.user.is_authenticated %}
+                {% if author.following.count %}
+                  <a class="btn btn-lg btn-light" 
+                    href="{% url 'profile_unfollow' author.username %}" role="button"> 
+                    Отписаться 
+                  </a> 
+                {% else %}
+                  <a class="btn btn-lg btn-primary" 
+                    href="{% url 'profile_follow' author.username %}" role="button">
+                  Подписаться 
+                  </a>
+                {% endif %}
               {% endif %}
             </div>
           </li>
@@ -45,6 +55,7 @@
     <div class="col-md-9">                
       {% for post in page %}
         {% include "post_item.html" with post=post %}
+        <hr>
       {% endfor %}
       {% if page.has_other_pages %}
         {% include "paginator.html" with items=page paginator=paginator %}

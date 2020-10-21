@@ -12,8 +12,7 @@ urlpatterns = [
     path("new/",
          views.new_post,
          name="new_post"),
-    path(
-         "follow/",
+    path("follow/",
          views.follow_index,
          name="follow_index"),
     path("<str:username>/",
