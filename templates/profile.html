@@ -34,16 +34,18 @@
           	<div class="h6 text-muted">
               <p>Количество постов: {{ author.posts.count }}</p>
               {% if request.user.is_authenticated %}
-                {% if author.following.count %}
-                  <a class="btn btn-lg btn-light" 
-                    href="{% url 'profile_unfollow' author.username %}" role="button"> 
-                    Отписаться 
-                  </a> 
-                {% else %}
-                  <a class="btn btn-lg btn-primary" 
-                    href="{% url 'profile_follow' author.username %}" role="button">
-                  Подписаться 
-                  </a>
+                {% if request.user != author %}
+                  {% if author.following.count %}
+                    <a class="btn btn-lg btn-light" 
+                      href="{% url 'profile_unfollow' author.username %}" role="button"> 
+                      Отписаться 
+                    </a> 
+                  {% else %}
+                    <a class="btn btn-lg btn-primary" 
+                      href="{% url 'profile_follow' author.username %}" role="button">
+                    Подписаться 
+                    </a>
+                  {% endif %}
                 {% endif %}
               {% endif %}
             </div>
