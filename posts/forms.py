@@ -17,10 +17,8 @@ class PostForm(ModelForm):
             "image",
         ]
         labels = {
-            "text": _("Введите текст поста"),
             "group": _("Выберите группу(при необходимости)"),
         }
-    text = forms.CharField(widget=forms.Textarea)
 
 
 class CommentForm(ModelForm):
