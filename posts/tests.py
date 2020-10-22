@@ -1,4 +1,7 @@
 
+import io
+import tempfile
+from dummy_file_generator import DummyFileGenerator
 from django.contrib.auth.models import AnonymousUser
 from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -37,8 +40,7 @@ class TestPostsApp(TestCase):
         }
         response = self.client_auth.post(
             reverse("new_post"), data, follow=True)
-        post_number = response.context["post"].pk
-        post = Post.objects.get(pk=post_number)
+        post = response.context["post"]
         self.assertEqual(self.author, post.author)
         self.assertEqual(self.group, post.group)
         self.assertEqual(self.text, post.text)
@@ -50,20 +52,20 @@ class TestPostsApp(TestCase):
             author=self.author,
             group=self.group
         )
-        pages = (
+        urls = (
             reverse("index"),
             reverse("profile", args=[self.author.username]),
             reverse("post", args=[self.author.username, post.pk]),
             reverse("group", args=[self.group.slug])
             )
-        for page in pages:
-            response = self.client_auth.get(page)
-            with self.subTest("Пост не был добавлен на страницу " + page):
-                if "paginator" in response.context:
-                    self.assertIn(
-                        post, response.context["paginator"].object_list)
-                else:
-                    self.assertEquals(post, response.context["post"])
+        for url in urls:
+            response = self.client_auth.get(url)
+            if "paginator" in response.context:
+                response_post = response.context["paginator"].object_list[0]
+            else:
+                response_post = response.context["post"]
+            with self.subTest("Пост не был добавлен на страницу " + url):
+                self.assertEqual(post, response_post)
 
     def test_post_edit(self):
         """ Checking post correction """
@@ -91,9 +93,9 @@ class TestPostsApp(TestCase):
         self.assertEqual(response.context["post"], post,
                          msg="Пост не был обновлен")
 
-    def test_post_contains_image_tag(self):
+    def test_index_profile_group_post_contain_image_tags(self):
         """Checking that after uploding a post with an image file
-        the post page will contain an '<img' tag
+        the index, profile and group pages will contain an '<img' tag
         """
         small_gif = (
             b"\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x00\x00\x00\x21\xf9\x04"
@@ -111,47 +113,24 @@ class TestPostsApp(TestCase):
             group=self.group,
             image=img,
         )
-        response = self.client_auth.get(reverse("post",
-                                        args=[self.author.username, post.pk]))
-        self.assertContains(response, "<img")
-
-    def test_index_profile_group_contain_image_tags(self):
-        """Checking that after uploding a post with an image file
-        the index, profile and group pages will contain an '<img' tag
-        """
-        small_gif = (
-            b"\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x00\x00\x00\x21\xf9\x04"
-            b"\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02"
-            b"\x02\x4c\x01\x00\x3b"
-        )
-        img = SimpleUploadedFile(
-            name="some.gif",
-            content=small_gif,
-            content_type="image/gif",
-        )
-        Post.objects.create(
-            author=self.author,
-            text=self.text,
-            group=self.group,
-            image=img,
-        )
-        pages = (
+        urls = (
             reverse("index"),
             reverse("profile", args=[self.author.username]),
-            reverse("group", args=[self.group.slug])
+            reverse("group", args=[self.group.slug]),
+            reverse("post", args=[self.author.username, post.pk]),
         )
-        for page in pages:
-            response = self.client_auth.get(page)
-            with self.subTest("Тега нет на странице " + page):
+        for url in urls:
+            response = self.client_auth.get(url)
+            with self.subTest("Тега нет на странице " + url):
                 self.assertContains(response, "<img")
 
     def test_not_image_upload(self):
         """ Checking that uploading of a non-image file is impossible"""
-        with open("media/123.jpg", "rb") as img:
-            response = self.client_auth.post(reverse("new_post"), {
+        file = SimpleUploadedFile("text.txt", b"hello world", "text/plain")
+        response = self.client_auth.post(reverse("new_post"), {
                 "author": self.author,
                 "text": "post with image",
-                "image": img},
+                "image": file},
                 follow=True
             )
         self.assertFormError(
@@ -185,16 +164,14 @@ class TestPostsApp(TestCase):
         self.client_auth.get(reverse(
             "profile", args=[author.username]))
         follower = User.objects.get(pk=1)
-        with self.subTest(" Подписка не удалась"):
-            self.assertTrue(
-                Follow.objects.filter(user=follower, author=author).exists())
+        self.assertTrue(
+            Follow.objects.filter(user=follower, author=author).exists())
         self.client_auth.post(reverse(
             "profile_unfollow", args=[author.username]))
         self.client_auth.get(reverse(
             "profile", args=[author.username]))
-        with self.subTest(" Подписка не удалась"):
-            self.assertFalse(
-                Follow.objects.filter(user=follower, author=author).exists())
+        self.assertFalse(
+            Follow.objects.filter(user=follower, author=author).exists())
 
     def test_posts_from_subscribes(self):
         """ Testing that only a subscribed user will see a post
@@ -208,6 +185,9 @@ class TestPostsApp(TestCase):
             )
         user_1 = User.objects.create_user(username="user_1")
         self.client_auth.force_login(user_1)
+        response = self.client_auth.get(reverse(
+            "follow_index"))
+        self.assertNotIn(post, response.context["paginator"].object_list)
         Follow.objects.create(
             author=author,
             user=user_1,

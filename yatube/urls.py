@@ -10,12 +10,12 @@ urlpatterns = [
     path("about/", include("django.contrib.flatpages.urls")),
     path("auth/", include("users.urls")),
     path("auth/", include("django.contrib.auth.urls")),
-    path("", include("posts.urls")),
 
     path("about-author/", views.flatpage, name="author"),
     path("about-spec/", views.flatpage, name="spec"),
     path("about-us/", views.flatpage, {"url": "/about-us/"}, name="about"),
     path("terms/", views.flatpage, {"url": "/terms/"}, name="terms"),
+    path("", include("posts.urls")),
 ]
 
 handler404 = "posts.views.page_not_found"  #noqa

@@ -15,6 +15,11 @@ class GroupAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("title", )}
 
 
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ("text", "pub_date", "author",)
+    search_fields = ("text", "author",)
+
+
 admin.site.register(Post, PostAdmin)
 admin.site.register(Group, GroupAdmin)
 admin.site.register(Comment)

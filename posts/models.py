@@ -81,8 +81,8 @@ class Comment(models.Model):
 
 class Follow(models.Model):
     class Meta:
-        verbose_name = "Подписчик"
-        verbose_name_plural = "Подписчики"
+        verbose_name = "Подписка"
+        verbose_name_plural = "Подписки"
 
     user = models.ForeignKey(
         User,

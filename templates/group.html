@@ -3,14 +3,6 @@
 {% block header %}Записи сообщества {{ group.title }} | Yatube{% endblock %}
 {% block content %}
 
-<style>
-  hr {
-   background-color: grey; /* Цвет линии */
-   color: grey; /* Цвет линии для IE6-7 */
-   height: 2px; /* Толщина линии */
-  }
- </style>
-
   <p>
     {{group.description}}
   </p>
@@ -19,13 +11,12 @@
     <h1> Последние обновления на сайте</h1>
       <!-- Вывод ленты записей -->
       {% for post in page %}
-        <!-- Вот он, новый include! -->
-        {% include "post_item.html" with post=post show_group=False %}
+        {% include "includes/post_item.html" with post=post hide_group=True %}
         <hr>
       {% endfor %}
   </div>
   {% if page.has_other_pages %}
-    {% include "paginator.html" with items=page paginator=paginator %}
+    {% include "includes/paginator.html" with items=page paginator=paginator %}
   {% endif %}
 
 {% endblock %}
